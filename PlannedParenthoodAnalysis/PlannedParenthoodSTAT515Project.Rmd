@@ -1,0 +1,139 @@
+---
+title: "PlannedParenthoodSTAT515Project"
+author: "Jennifer Smiley"
+date: "June 30, 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+pp <- read_csv("C:/Users/athen/Documents/STAT 515/PlannedParenthoodAnnualReportData.csv")
+head(pp)
+```
+
+```{r}
+colors <- c("Total Abortion Services" = "red", "Total Cancer Screening and Prevention" = "pink")
+
+
+ggplot(data = pp)+
+  geom_line(aes(x = Year, y = `Total Abortion Services`, color = "Total Abortion Services"))+
+  geom_point(aes(x = Year, y = `Total Abortion Services`, color = "Total Abortion Services"))+
+  geom_line(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Total Cancer Screening and Prevention"))+
+  geom_point(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Total Cancer Screening and Prevention"))+
+scale_colour_manual("", 
+                      values = c("Total Abortion Services"="red", "Total Cancer Screening and Prevention"="pink")) +
+  xlab(" ")+
+  ylab("Abortions vs. Cancer Screenings")+
+  theme_bw()
+```
+
+```{r}
+colors <- c("Abortions" = "red", "Cancer Screenings" = "magenta2")
+
+
+ggplot(data = pp)+
+  geom_line(aes(x = Year, y = `Total Abortion Services`, color = "Abortions"))+
+  geom_point(aes(x = Year, y = `Total Abortion Services`, color = "Abortions"))+
+  geom_line(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Cancer Screenings"))+
+  geom_point(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Cancer Screenings"))+
+  labs(x = "Year",
+         y = "Number of Procedures",
+       title = "Abortions vs. Cancer Screenings",
+         color = "Legend") +
+  scale_color_manual(values = colors)+
+  theme_bw()
+```
+
+```{r}
+colors <- c("Abortions" = "red", "Cancer Screenings" = "magenta2", "STI Testing/Treatment" = "orange")
+
+
+ggplot(data = pp)+
+  geom_line(aes(x = Year, y = `Total Abortion Services`, color = "Abortions"))+
+  geom_point(aes(x = Year, y = `Total Abortion Services`, color = "Abortions"))+
+  geom_line(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Cancer Screenings"))+
+  geom_point(aes(x = Year, y = `Total Cancer Screening and Prevention`, color = "Cancer Screenings"))+
+  geom_line(aes(x = Year, y = `Total STI Testing/Treatment`, color = "STI Testing/Treatment"))+
+  geom_point(aes(x = Year, y = `Total STI Testing/Treatment`, color = "STI Testing/Treatment"))+
+  labs(x = "Year",
+         y = "Number of Procedures",
+       title = "Abortions vs. Cancer Screenings",
+         color = "Legend") +
+  scale_color_manual(values = colors)+
+  theme_bw()
+```
+
+Cleaning the data to make the plotting easier:
+Wide to long dataframe
+
+```{r}
+#Select columns we want
+pp1<- select(pp, id, Year, `Total Abortion Services`, `Total Cancer Screening and Prevention`, `Total STI Testing/Treatment`, `Total Contraception`, `Pregnancy Tests`, `Total Other Services`)
+pp1
+```
+
+```{r}
+pp2 <- gather(pp1, Services, Number_of_Procedures, `Total Abortion Services`:`Total Other Services`)
+pp2
+```
+
+```{r}
+library(ggrepel)
+```
+
+```{r}
+plt <- ggplot(data = pp2, aes(x = Year, y = Number_of_Procedures, group = Services, color = Services))+
+  geom_line()+
+  geom_point()+
+  labs(title = "Services Provided by Planned Parenthood")+
+  #geom_text(aes(label = Number_of_Procedures), position = position_dodge(0.9))+
+  geom_text(aes(label=ifelse(Year>2012,Number_of_Procedures, NA_character_)), nudge_x = 0.5, nudge_y = 0.1)+
+  geom_text(aes(label=ifelse(Year<2007,Number_of_Procedures, NA_character_)),nudge_x = -0.5, vjust = "jitter", size = 3, color = "black")+
+  theme_bw()
+
+plt + theme(legend.position="bottom", legend.text = element_text(size = 8, color = "black"), plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+?ifelse()
+```
+
+```{r}
+#Select columns we want
+pp3<- select(pp, id, Year, `Total Abortion Services`, `Total Services Provided`)
+pp3
+```
+
+```{r}
+pp4 <- mutate(pp3, Non_abortion_Services = `Total Services Provided` - `Total Abortion Services`)
+pp4
+```
+
+
+```{r}
+pp5 <- pp4 %>%
+  select(1:3,5) %>%
+  gather(Services, Number_of_Procedures, 3:4)
+pp5
+```
+
+```{r}
+ggplot(data = pp5, aes(x = Year, y = Number_of_Procedures, group = Services, color = Services))+
+  geom_line()+
+  geom_point()+
+  theme_bw()
+```
+
+
+
+
+
+
+
+
